@@ -1,0 +1,81 @@
+name: Create Feature & Stories Issues
+
+on:
+  workflow_dispatch:
+    inputs:
+      feature_name:
+        description: 'Feature name (title)'
+        required: true
+      epic_issue:
+        description: 'Parent epic issue number (without #)'
+        required: true
+      feature_description:
+        description: 'Short feature description (optional)'
+        required: false
+      labels:
+        description: 'Comma-separated labels to apply to created issues (optional)'
+        required: false
+
+jobs:
+  create-issues:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Create Feature and Child Issues
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const inputs = github.context.payload.inputs || github.event.inputs || {};
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const featureName = inputs.feature_name;
+            const epicNumber = inputs.epic_issue;
+            const featureDescription = inputs.feature_description || '';
+            const labelsInput = inputs.labels || '';
+            const labels = labelsInput.split(',').map(l => l.trim()).filter(Boolean);
+
+            const featureBody = `# Feature: ${featureName}\n\n${featureDescription}\n\n## User Stories\n- [ ] # - UI - Menubar icon & popover\n- [ ] # - UX - Search input & loading states\n\n## Technical Enablers\n- [ ] # - Backend API /alternatives\n- [ ] # - Prompt engineering & parser\n\n## Dependencies\n**Epic**: #${epicNumber}\n\n## Acceptance Criteria\n- [ ] Popover position & toggle works\n- [ ] Results include name, description, url and open in browser\n`;
+
+            const featureIssue = await github.rest.issues.create({
+              owner,
+              repo,
+              title: `Feature: ${featureName}`,
+              body: featureBody,
+              labels
+            });
+
+            const featureNumber = featureIssue.data.number;
+
+            // Helper to create an issue
+            async function createChildIssue(title, body, extraLabels=[]) {
+              const res = await github.rest.issues.create({
+                owner,
+                repo,
+                title,
+                body: body + `\n\nParent Feature: #${featureNumber}\nEpic: #${epicNumber}`,
+                labels: [...labels, ...extraLabels]
+              });
+              return res.data.number;
+            }
+
+            // Create a set of recommended child issues
+            const uiBody = `As a macOS user, I want to open AltGenie from the menubar so I can search alternatives without leaving my workflow.\n\nAcceptance Criteria:\n- [ ] Icon appears in menubar\n- [ ] Click toggles popover\n- [ ] Popover closes on outside click or Esc\n`;
+
+            const uxBody = `Search input behaviour, validation and loading/empty/error UX.\n\nAcceptance Criteria:\n- [ ] Empty queries blocked\n- [ ] Loading indicator visible while awaiting AI\n- [ ] Clear empty/error states & retry action\n`;
+
+            const backendBody = `Backend endpoint POST /alternatives that accepts {query} and returns JSON list of {name, description, url}.\n\nAcceptance Criteria:\n- [ ] Endpoint implemented and authenticated as needed\n- [ ] Secrets stored securely\n- [ ] Basic rate limiting and caching in place\n`;
+
+            const promptBody = `Prompt engineering and response parser for stable JSON output from the AI provider.\n\nAcceptance Criteria:\n- [ ] Prompt templates checked in\n- [ ] Parser robust to format variations\n- [ ] URL validation implemented\n`;
+
+            const issuesCreated = [];
+            issuesCreated.push(await createChildIssue('User Story: UI - Menubar icon & popover', uiBody, ['user-story','frontend']));
+            issuesCreated.push(await createChildIssue('User Story: UX - Search input & states', uxBody, ['user-story','frontend']));
+            issuesCreated.push(await createChildIssue('Enabler: Backend API /alternatives', backendBody, ['enabler','backend']));
+            issuesCreated.push(await createChildIssue('Enabler: Prompt engineering & parser', promptBody, ['enabler','backend']));
+
+            core.setOutput('feature_issue', featureNumber);
+            core.setOutput('created_issues', JSON.stringify(issuesCreated));
+
+            console.log(`Created feature issue #${featureNumber} and child issues: ${issuesCreated.join(', ')}`);
