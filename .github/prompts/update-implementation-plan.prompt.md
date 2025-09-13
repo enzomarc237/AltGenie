@@ -1,6 +1,6 @@
 ---
 mode: 'agent'
-description: 'Update an existing implementation plan file with new or update requirements to provide new features, refactoring existing code or upgrading packages, design, architecture or infrastructure.'
+description: 'Update an existing implementation plan file with new or updated requirements to provide new features, refactor existing code, upgrade packages, or modify design, architecture, or infrastructure.'
 tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'githubRepo', 'openSimpleBrowser', 'problems', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI']
 ---
 # Update Implementation Plan
@@ -55,7 +55,7 @@ All implementation plans must strictly adhere to the following template. Each se
 
 ## Template Validation Rules
 
-- All front matter fields must be present and properly formatted
+- All required front matter fields must be present; optional fields may be omitted, but when provided they must be properly formatted
 - All section headers must match exactly (case-sensitive)
 - All identifier prefixes must follow the specified format
 - Tables must include all required columns

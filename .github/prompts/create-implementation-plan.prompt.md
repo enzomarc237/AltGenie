@@ -55,7 +55,7 @@ All implementation plans must strictly adhere to the following template. Each se
 
 ## Template Validation Rules
 
-- All front matter fields must be present and properly formatted
+- All required front matter fields must be present; optional fields may be omitted, but when provided they must be properly formatted
 - All section headers must match exactly (case-sensitive)
 - All identifier prefixes must follow the specified format
 - Tables must include all required columns

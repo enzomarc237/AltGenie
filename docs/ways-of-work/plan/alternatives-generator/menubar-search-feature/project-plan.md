@@ -150,7 +150,7 @@ Champs personnalisés: Priority (P0..P3), Value (High/Medium/Low), Component (Fr
 
 ## 7. Automatisation proposition (workflow GitHub Actions)
 
-- Workflow `create-feature-issues.yml` (dispatch manuel) qui prend `feature_name` et `epic_issue` et créé un ticket Feature lié à l'Epic. (Implémentation recommandée via `actions/github-script`)
+- Workflow `create-feature-issues.yml` (dispatch manuel) qui prend `feature_name` et `epic_issue` et crée un ticket Feature lié à l'Epic. (Implémentation recommandée via `actions/github-script`)
 
 ## 8. Annexes & références
 
