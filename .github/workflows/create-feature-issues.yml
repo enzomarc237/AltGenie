@@ -69,13 +69,18 @@ jobs:
 
             const promptBody = `Prompt engineering and response parser for stable JSON output from the AI provider.\n\nAcceptance Criteria:\n- [ ] Prompt templates checked in\n- [ ] Parser robust to format variations\n- [ ] URL validation implemented\n`;
 
-            const issuesCreated = [];
-            issuesCreated.push(await createChildIssue('User Story: UI - Menubar icon & popover', uiBody, ['user-story','frontend']));
-            issuesCreated.push(await createChildIssue('User Story: UX - Search input & states', uxBody, ['user-story','frontend']));
-            issuesCreated.push(await createChildIssue('Enabler: Backend API /alternatives', backendBody, ['enabler','backend']));
-            issuesCreated.push(await createChildIssue('Enabler: Prompt engineering & parser', promptBody, ['enabler','backend']));
+            try {
+              const issuesCreated = [];
+              issuesCreated.push(await createChildIssue('User Story: UI - Menubar icon & popover', uiBody, ['user-story','frontend']));
+              issuesCreated.push(await createChildIssue('User Story: UX - Search input & states', uxBody, ['user-story','frontend']));
+              issuesCreated.push(await createChildIssue('Enabler: Backend API /alternatives', backendBody, ['enabler','backend']));
+              issuesCreated.push(await createChildIssue('Enabler: Prompt engineering & parser', promptBody, ['enabler','backend']));
 
-            core.setOutput('feature_issue', featureNumber);
-            core.setOutput('created_issues', JSON.stringify(issuesCreated));
+              console.log(`Created feature issue #${featureNumber} and child issues: ${issuesCreated.join(', ')}`);
 
-            console.log(`Created feature issue #${featureNumber} and child issues: ${issuesCreated.join(', ')}`);
+              // Return an object so actions/github-script exposes it as the step result
+              return { feature_issue: featureNumber, created_issues: issuesCreated };
+            } catch (err) {
+              console.error('Error creating issues:', err);
+              throw err;
+            }
